@@ -5,11 +5,6 @@
 ## (1) Requirements
 - docker
 - milvus
-```shell
-# start milvus
-wget https://github.com/milvus-io/milvus/releases/download/v2.5.10/milvus-standalone-docker-compose.yml -O docker-compose.yml
-docker compose up -d
-```
 
 ## (2) Get Started
 
@@ -17,7 +12,7 @@ docker compose up -d
 # run multimodal-search
 docker run -itd --name mmultimodal_search_server -p 8081:8081 registry.cn-beijing.aliyuncs.com/luckercs/multimodal-search:1.0
 ```
-通过浏览器访问 http://localhost:8081
+通过浏览器访问 http://<your_host>:8081
 
 <img src="images/searchpage.png" alt="coffee" width="600">
 
