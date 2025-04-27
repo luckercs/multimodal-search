@@ -16,7 +16,7 @@ const handleClick = (tab, event) => {
 
 <template>
   <div>
-    <el-row >
+    <el-row>
       <el-col :span="24">
         <div class="center-text"><h2>Multimodal-Search</h2></div>
         <el-divider>
@@ -26,10 +26,18 @@ const handleClick = (tab, event) => {
     <el-row>
       <el-col :span="24">
         <el-tabs v-model="activeTagName" class="main-tabs" @tab-click="handleClick">
-          <el-tab-pane label="实例创建" name="instanceCreate"><InstanceCreate></InstanceCreate></el-tab-pane>
-          <el-tab-pane label="图片导入" name="picImport"><PicImport></PicImport></el-tab-pane>
-          <el-tab-pane label="图片检索" name="picSearch"><PicSearch></PicSearch></el-tab-pane>
-          <el-tab-pane label="实例删除" name="instanceDelete"><InstanceDelete></InstanceDelete></el-tab-pane>
+          <el-tab-pane label="实例创建" name="instanceCreate">
+            <InstanceCreate></InstanceCreate>
+          </el-tab-pane>
+          <el-tab-pane label="图片导入" name="picImport">
+            <PicImport></PicImport>
+          </el-tab-pane>
+          <el-tab-pane label="图片检索" name="picSearch">
+            <PicSearch></PicSearch>
+          </el-tab-pane>
+          <el-tab-pane label="实例删除" name="instanceDelete">
+            <InstanceDelete></InstanceDelete>
+          </el-tab-pane>
         </el-tabs>
       </el-col>
     </el-row>

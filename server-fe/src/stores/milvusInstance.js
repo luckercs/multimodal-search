@@ -1,4 +1,4 @@
-import { defineStore } from 'pinia';
+import {defineStore} from 'pinia';
 import {reactive} from "vue";
 
 export const useMilvusInstanceStore = defineStore('milvusInstance', () => {
@@ -15,5 +15,5 @@ export const useMilvusInstanceStore = defineStore('milvusInstance', () => {
         ModelVecDim: '1024'
     })
 
-    return { milvusInstance }
+    return {milvusInstance}
 })

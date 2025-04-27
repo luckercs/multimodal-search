@@ -3,20 +3,15 @@ import {reactive, ref} from "vue";
 import {ElMessage} from "element-plus";
 import axios from "axios";
 import {useMilvusInstanceStore} from "@/stores/milvusInstance.js";
-import { UploadFilled } from '@element-plus/icons-vue'
-
-const picSearchByTextUrl = "/api/picSearchByText"
-const picSearchByImgUrl = "/api/picSearchByImg"
-const UploadUrl = "/api/uploadImageFiles"
+import {UploadFilled} from '@element-plus/icons-vue'
+import {picSearchByTextUrl, picSearchByImgUrl, UploadUrl} from "@/api/constants.js";
 
 const milvusInstanceStore = useMilvusInstanceStore()
 const filesList = ref([])
 const search_img_filename = ref('')
 const searchImageUrl = ref('')
-const formInstance = reactive({
-  search_text: '',
-  search_topk: "3",
-})
+const search_text = ref('')
+const search_topk = ref('3')
 const imageUrlAndScores = reactive([])
 const search_status = ref('')
 
@@ -26,18 +21,18 @@ const onPicSearchByText = () => {
       milvusInstanceStore.milvusInstance.MilvusCollectionName === '' ||
       milvusInstanceStore.milvusInstance.ModelVecDim === '' ||
       milvusInstanceStore.milvusInstance.MilvusIndexName === '' ||
-      milvusInstanceStore.milvusInstance.MilvusMetricType === ''||
-      milvusInstanceStore.milvusInstance.Model_API_KEY === ''||
-      formInstance.search_text === '' ||
-      formInstance.search_topk === '') {
+      milvusInstanceStore.milvusInstance.MilvusMetricType === '' ||
+      milvusInstanceStore.milvusInstance.Model_API_KEY === '' ||
+      search_text.value === '' ||
+      search_topk.value === '') {
     ElMessage({showClose: true, message: '请输入milvus实例创建所有参数以及搜索参数', type: 'error'})
     return
   }
-  search_status.value='查询中...'
+  search_status.value = '查询中...'
   search_img_filename.value = ''
   searchImageUrl.value = ''
   imageUrlAndScores.length = 0
-  axios.post(picSearchByTextUrl,{
+  axios.post(picSearchByTextUrl, {
     milvus_server: milvusInstanceStore.milvusInstance.MilvusServerName,
     milvus_port: milvusInstanceStore.milvusInstance.MilvusServerPort,
     milvus_username: milvusInstanceStore.milvusInstance.MilvusServerUserName,
@@ -47,10 +42,10 @@ const onPicSearchByText = () => {
     metric_type: milvusInstanceStore.milvusInstance.MilvusMetricType,
     embed_server_url: milvusInstanceStore.milvusInstance.ModelUrl,
     embed_server_apikey: milvusInstanceStore.milvusInstance.Model_API_KEY,
-    search_text: formInstance.search_text,
-    search_topk: formInstance.search_topk
+    search_text: search_text.value,
+    search_topk: search_topk.value
   }).then(response => {
-    search_status.value=''
+    search_status.value = ''
     if (response.status === 200) {
       ElMessage({showClose: true, message: '查询成功', type: 'success',})
       imageUrlAndScores.push(...JSON.parse(response.data.data))
@@ -58,7 +53,7 @@ const onPicSearchByText = () => {
       ElMessage({showClose: true, message: '查询失败', type: 'error',})
     }
   }).catch(err => {
-    search_status.value=''
+    search_status.value = ''
     console.error('查询失败:', error);
     console.error(response.data.data);
     ElMessage({showClose: true, message: '查询失败', type: 'error'})
@@ -92,17 +87,17 @@ const onPicSearchByImg = () => {
       milvusInstanceStore.milvusInstance.MilvusCollectionName === '' ||
       milvusInstanceStore.milvusInstance.ModelVecDim === '' ||
       milvusInstanceStore.milvusInstance.MilvusIndexName === '' ||
-      milvusInstanceStore.milvusInstance.MilvusMetricType === ''||
-      milvusInstanceStore.milvusInstance.Model_API_KEY === ''||
+      milvusInstanceStore.milvusInstance.MilvusMetricType === '' ||
+      milvusInstanceStore.milvusInstance.Model_API_KEY === '' ||
       search_img_filename.value === '' ||
-      formInstance.search_topk === '') {
+      search_topk.value === '') {
     ElMessage({showClose: true, message: '请输入milvus实例创建所有参数以及搜索参数', type: 'error'})
     return
   }
-  search_status.value='查询中...'
-  formInstance.search_text=''
+  search_status.value = '查询中...'
+  search_text.value = ''
   imageUrlAndScores.length = 0
-  axios.post(picSearchByImgUrl,{
+  axios.post(picSearchByImgUrl, {
     milvus_server: milvusInstanceStore.milvusInstance.MilvusServerName,
     milvus_port: milvusInstanceStore.milvusInstance.MilvusServerPort,
     milvus_username: milvusInstanceStore.milvusInstance.MilvusServerUserName,
@@ -113,9 +108,9 @@ const onPicSearchByImg = () => {
     embed_server_url: milvusInstanceStore.milvusInstance.ModelUrl,
     embed_server_apikey: milvusInstanceStore.milvusInstance.Model_API_KEY,
     search_img: search_img_filename.value,
-    search_topk: formInstance.search_topk
+    search_topk: search_topk.value
   }).then(response => {
-    search_status.value=''
+    search_status.value = ''
     if (response.status === 200) {
       ElMessage({showClose: true, message: '查询成功', type: 'success',})
       imageUrlAndScores.push(...JSON.parse(response.data.data))
@@ -123,7 +118,7 @@ const onPicSearchByImg = () => {
       ElMessage({showClose: true, message: '查询失败', type: 'error',})
     }
   }).catch(err => {
-    search_status.value=''
+    search_status.value = ''
     console.error('查询失败:', error);
     console.error(response.data.data);
     ElMessage({showClose: true, message: '查询失败', type: 'error'})
@@ -133,61 +128,63 @@ const onPicSearchByImg = () => {
 </script>
 
 <template>
-    <el-form :model="formInstance" label-width="auto">
-      <el-row>
-        <el-col :span="7">
-          <el-form-item label="Milvus集合实例名称">
-            <el-input v-model="milvusInstanceStore.milvusInstance.MilvusCollectionName" />
-          </el-form-item>
-        </el-col>
-        <el-col :span="7" :offset="1">
-          <el-form-item label="search_topk">
-            <el-input v-model="formInstance.search_topk" />
-          </el-form-item>
-        </el-col>
-      </el-row>
-      <el-divider></el-divider>
-      <el-row>
-        <el-col :span="7">
-          <el-form-item label="search_text">
-            <el-input v-model="formInstance.search_text" placeholder="Please enter text to search" />
-          </el-form-item>
-        </el-col>
-        <el-col :span="2" :offset="1">
-          <el-form-item>
-            <el-button type="primary" @click="onPicSearchByText">以文搜图</el-button>
-          </el-form-item>
-        </el-col>
-      </el-row>
-      <el-row>
-        <el-col :span="7">
-          <el-form-item label="search_img">
-            <el-upload
-                class="upload-demo"
-                drag
-                action=""
-                list-type="picture"
-                v-model:file-list="filesList"
-                :show-file-list="false"
-                :http-request="customUpload"
-            >
-              <el-icon class="el-icon--upload" style="height: 5px"><upload-filled/></el-icon>
-              <div class="el-upload__text">
-                拖拽图片 or <em>点击上传</em>
-              </div>
-              <div v-if="searchImageUrl">
-                <img :src="searchImageUrl" alt="Img" style="max-width: 100%; height: auto;">
-              </div>
-              {{ search_img_filename }}
-            </el-upload>
-          </el-form-item>
-        </el-col>
-        <el-col :span="2" :offset="1">
-          <el-form-item>
-            <el-button type="primary" @click="onPicSearchByImg">以图搜图</el-button>
-          </el-form-item>
-        </el-col>
-      </el-row>
+  <el-form label-width="auto">
+    <el-row>
+      <el-col :span="7">
+        <el-form-item label="Milvus集合实例名称">
+          <el-input v-model="milvusInstanceStore.milvusInstance.MilvusCollectionName"/>
+        </el-form-item>
+      </el-col>
+      <el-col :span="7" :offset="1">
+        <el-form-item label="search_topk">
+          <el-input v-model="search_topk"/>
+        </el-form-item>
+      </el-col>
+    </el-row>
+    <el-divider></el-divider>
+    <el-row>
+      <el-col :span="7">
+        <el-form-item label="search_text">
+          <el-input v-model="search_text" placeholder="Please enter text to search"/>
+        </el-form-item>
+      </el-col>
+      <el-col :span="2" :offset="1">
+        <el-form-item>
+          <el-button type="primary" @click="onPicSearchByText">以文搜图</el-button>
+        </el-form-item>
+      </el-col>
+    </el-row>
+    <el-row>
+      <el-col :span="7">
+        <el-form-item label="search_img">
+          <el-upload
+              class="upload-demo"
+              drag
+              action=""
+              list-type="picture"
+              v-model:file-list="filesList"
+              :show-file-list="false"
+              :http-request="customUpload"
+          >
+            <el-icon class="el-icon--upload" style="height: 5px">
+              <upload-filled/>
+            </el-icon>
+            <div class="el-upload__text">
+              拖拽图片 or <em>点击上传</em>
+            </div>
+            <div v-if="searchImageUrl">
+              <img :src="searchImageUrl" alt="Img" style="max-width: 100%; height: auto;">
+            </div>
+            {{ search_img_filename }}
+          </el-upload>
+        </el-form-item>
+      </el-col>
+      <el-col :span="2" :offset="1">
+        <el-form-item>
+          <el-button type="primary" @click="onPicSearchByImg">以图搜图</el-button>
+        </el-form-item>
+      </el-col>
+    </el-row>
 
   </el-form>
   <el-divider></el-divider>
@@ -196,8 +193,8 @@ const onPicSearchByImg = () => {
     <el-divider></el-divider>
     <div class="image-container">
       <div v-for="(urlAndScore, index) in imageUrlAndScores" :key="index" class="image-item">
-          <img :src="urlAndScore.url" :alt="`score: ${urlAndScore.url}`" :title="`score: ${urlAndScore.score}`">
-          <p>{{ urlAndScore.filename }}</p>
+        <img :src="urlAndScore.url" :alt="`score: ${urlAndScore.url}`" :title="`score: ${urlAndScore.score}`">
+        <p>{{ urlAndScore.filename }}</p>
       </div>
     </div>
   </div>
@@ -208,11 +205,13 @@ const onPicSearchByImg = () => {
   display: flex;
   flex-wrap: wrap;
 }
+
 .image-item {
   flex: 0 0 20%;
   box-sizing: border-box;
   padding: 5px;
 }
+
 .image-item img {
   width: 50%;
   height: auto;

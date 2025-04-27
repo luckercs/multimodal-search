@@ -1,0 +1,6 @@
+export const instanceCreateUrl = "/api/instanceCreate"
+export const instanceDeleteUrl = "/api/instanceDelete"
+export const PicImportUrl = "/api/onPicImport"
+export const picSearchByTextUrl = "/api/picSearchByText"
+export const picSearchByImgUrl = "/api/picSearchByImg"
+export const UploadUrl = "/api/uploadImageFiles"
