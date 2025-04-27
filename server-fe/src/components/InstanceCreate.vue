@@ -112,6 +112,7 @@ const onInstanceCreate = () => {
       </el-col>
 
       <el-col :span="2" :offset="1">
+        <el-icon><QuestionFilled /></el-icon>
         <a href="https://bailian.console.aliyun.com/?tab=api#/api/?type=model&url=https%3A%2F%2Fhelp.aliyun.com%2Fdocument_detail%2F2712195.html&renderType=iframe"
            target="_blank">
           获取
