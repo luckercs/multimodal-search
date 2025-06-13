@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"context"
+	"embed"
 	"encoding/json"
 	"errors"
 	"flag"
@@ -11,6 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"google.golang.org/grpc"
 	"io"
+	"io/fs"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -28,6 +30,9 @@ const (
 	msgFmt           = "==== %s ====\n"
 	uploadServerPath = "uploads"
 )
+
+//go:embed web/dist/*
+var staticFiles embed.FS
 
 func getValueFromParams(data map[string]interface{}, key string) interface{} {
 	keys := strings.Split(key, ".")
@@ -748,6 +753,7 @@ func main() {
 	serverport := flag.String("port", "8081", "port")
 	flag.Parse()
 
+	gin.SetMode(gin.ReleaseMode)
 	router := gin.Default()
 
 	config := cors.DefaultConfig()
@@ -763,11 +769,45 @@ func main() {
 	router.POST("/api/picSearchByText", picSearchByText)
 	router.POST("/api/picSearchByImg", picSearchByImg)
 	router.POST("/api/instanceDelete", instanceDelete)
-
-	router.Static("/assets", "./dist/assets")
+	router.GET("/api/hello", func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"message": "Hello multimodal-search!",
+		})
+	})
 	router.Static(uploadServerPath, uploadServerPath)
-	router.StaticFile("/favicon.ico", "./dist/favicon.ico")
-	router.StaticFile("/", "./dist/index.html")
+
+	distFS, err := fs.Sub(staticFiles, "web/dist")
+	if err != nil {
+		panic(err)
+	}
+	staticHandler := gin.WrapH(http.FileServer(http.FS(distFS)))
+	router.GET("/", staticHandler)
+	router.GET("/favicon.ico", staticHandler)
+	router.GET("/assets/*filepath", staticHandler)
+	router.NoRoute(func(c *gin.Context) {
+		if c.Request.Method == http.MethodGet && !isApiRequest(c.Request.URL.Path) {
+			file, err := distFS.Open("index.html")
+			if err != nil {
+				c.Status(http.StatusNotFound)
+				return
+			}
+			defer file.Close()
+
+			stat, err := file.Stat()
+			if err != nil {
+				c.Status(http.StatusInternalServerError)
+				return
+			}
+			c.Header("Content-Type", "text/html; charset=utf-8")
+			http.ServeContent(c.Writer, c.Request, "index.html", stat.ModTime(), file.(io.ReadSeeker))
+			return
+		}
+		c.Status(http.StatusNotFound)
+	})
 
 	router.Run(":" + *serverport)
+}
+
+func isApiRequest(path string) bool {
+	return strings.HasPrefix(path, "/api") || strings.HasPrefix(path, "/"+uploadServerPath)
 }

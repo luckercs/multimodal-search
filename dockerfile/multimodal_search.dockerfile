@@ -5,7 +5,6 @@ RUN pip3 install --upgrade pip -i https://mirrors.aliyun.com/pypi/simple/
 RUN pip3 install openai dashscope fastapi uvicorn
 COPY model/model_embed_online.py  /app/model_embed_online.py
 
-COPY server-fe/dist /app/dist
 COPY server-be/multimodal_search /app/
 RUN chmod +x /app/multimodal_search
 

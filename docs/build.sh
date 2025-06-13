@@ -36,6 +36,8 @@ npm install
 npm run build
 
 echo "build be..."
+rm -rf $project_dir/server-be/web/dist
+cp -r $project_dir/server-fe/dist $project_dir/server-be/web/
 cd $project_dir/server-be
 export GOOS=linux
 go mod tidy
